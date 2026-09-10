@@ -1,0 +1,150 @@
+### LiveMunshi API Test Requests (PostgreSQL Schema)
+@baseUrl = http://localhost:5000/api
+@token = {{login.response.body.token}}
+@khataId = c97a6365-4ab4-4128-973e-19aa2671166f
+@anilKcId = 3aab55ca-ada4-41d4-abbd-95977ba8e95c
+
+### 1. Root & Health Check
+GET http://localhost:5000/
+
+### 2. Health Endpoint
+GET {{baseUrl}}/health
+
+### 3. Login with Mobile Number & 4-Digit PIN
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "mobile_number": "9876543210",
+  "pin": "1234"
+}
+
+### 4. Refresh Access Token
+# @name refreshToken
+POST {{baseUrl}}/auth/refresh-token
+Content-Type: application/json
+
+{
+  "refreshToken": "{{login.response.body.refreshToken}}"
+}
+
+### 5. Forgot Password (Request OTP)
+# @name forgotPassword
+POST {{baseUrl}}/auth/forgot-password
+Content-Type: application/json
+
+{
+  "mobile_number": "9876543210"
+}
+
+### 6. Verify Reset Password OTP (Optional)
+POST {{baseUrl}}/auth/forgot-password/verify-otp
+Content-Type: application/json
+
+{
+  "mobile_number": "9876543210",
+  "otp_code": "123456"
+}
+
+### 7. Reset Password with OTP & New PIN
+POST {{baseUrl}}/auth/reset-password
+Content-Type: application/json
+
+{
+  "mobile_number": "9876543210",
+  "otp_code": "123456",
+  "new_pin": "1234"
+}
+
+### 8. Logout / Revoke Session
+POST {{baseUrl}}/auth/logout
+Content-Type: application/json
+
+{
+  "refreshToken": "{{login.response.body.refreshToken}}"
+}
+
+### 9. Send Generic OTP
+POST {{baseUrl}}/auth/send-otp
+Content-Type: application/json
+
+{
+  "mobile_number": "9876543210",
+  "purpose": "LOGIN"
+}
+
+### 5. Get User Profile & Khatas
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{token}}
+
+### 6. Get Khatas List
+GET {{baseUrl}}/khatas
+Authorization: Bearer {{token}}
+
+### 7. Get Khata Overview Stats (You Will Get / You Will Give)
+GET {{baseUrl}}/khatas/{{khataId}}/stats
+Authorization: Bearer {{token}}
+
+### 8. List Customers in Khata (with live net balances)
+GET {{baseUrl}}/parties/khata/{{khataId}}
+Authorization: Bearer {{token}}
+
+### 9. Filter Customers by "LENE" (You Will Get)
+GET {{baseUrl}}/parties/khata/{{khataId}}?filter=lene
+Authorization: Bearer {{token}}
+
+### 10. Filter Customers by "DENE" (You Will Give)
+GET {{baseUrl}}/parties/khata/{{khataId}}?filter=dene
+Authorization: Bearer {{token}}
+
+### 11. Search Customer by Name
+GET {{baseUrl}}/parties/khata/{{khataId}}?search=Suresh
+Authorization: Bearer {{token}}
+
+### 12. Create New Customer in Khata
+POST {{baseUrl}}/parties/khata/{{khataId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "customer_name": "Manish Gupta",
+  "mobile_number": "9876543299",
+  "address": "Main Market Road"
+}
+
+### 13. Get Customer Ledger Transactions & Running Balance
+GET {{baseUrl}}/transactions/party/{{anilKcId}}
+Authorization: Bearer {{token}}
+
+### 14. Add "LENE" Transaction (+ You Got ₹)
+POST {{baseUrl}}/transactions
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "khata_customer_id": "{{anilKcId}}",
+  "amount": 2500.00,
+  "transaction_type": "LENE",
+  "description": "Online UPI payment received"
+}
+
+### 15. Add "DENE" Transaction (− You Gave ₹)
+POST {{baseUrl}}/transactions
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "khata_customer_id": "{{anilKcId}}",
+  "amount": 500.00,
+  "transaction_type": "DENE",
+  "description": "Goods credit given"
+}
+
+### 16. Customer Statement (Print / PDF / WhatsApp format)
+GET {{baseUrl}}/reports/party/{{anilKcId}}/statement
+Authorization: Bearer {{token}}
+
+### 17. Khata Summary Report
+GET {{baseUrl}}/reports/khata/{{khataId}}/summary
+Authorization: Bearer {{token}}

@@ -1,0 +1,255 @@
+{
+  "info": {
+    "name": "LiveMunshi API Collection",
+    "_postman_id": "9a0a4c28-9891-49b4-9640-54ec19da2480",
+    "description": "Postman API Collection for LiveMunshi Backend (Digital Khata Book & Daily Expense/Ledger System)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000/api" },
+    { "key": "token", "value": "" },
+    { "key": "khataId", "value": "b003cfee-f01a-4304-b62b-f1f32597dafd" },
+    { "key": "partyId", "value": "ea3a5272-f4ba-49eb-a274-309f0f7d92b1" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login (Phone + PIN)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.token) {",
+                  "    pm.collectionVariables.set('token', jsonData.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone_number\": \"9876543210\",\n  \"pin\": \"1234\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone_number\": \"9876543299\",\n  \"pin\": \"4321\",\n  \"khata_name\": \"My New Shop\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] }
+          }
+        },
+        {
+          "name": "Send OTP",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone_number\": \"9876543210\",\n  \"purpose\": \"REGISTRATION\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/send-otp", "host": ["{{baseUrl}}"], "path": ["auth", "send-otp"] }
+          }
+        },
+        {
+          "name": "Get Profile / Me",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/auth/me", "host": ["{{baseUrl}}"], "path": ["auth", "me"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Khatas",
+      "item": [
+        {
+          "name": "List Khatas",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/khatas", "host": ["{{baseUrl}}"], "path": ["khatas"] }
+          }
+        },
+        {
+          "name": "Create Khata",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Wholesale Warehouse\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/khatas", "host": ["{{baseUrl}}"], "path": ["khatas"] }
+          }
+        },
+        {
+          "name": "Khata Stats (You Will Get / Give)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/khatas/{{khataId}}/stats", "host": ["{{baseUrl}}"], "path": ["khatas", "{{khataId}}", "stats"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Parties",
+      "item": [
+        {
+          "name": "List Parties in Khata",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/parties/khata/{{khataId}}", "host": ["{{baseUrl}}"], "path": ["parties", "khata", "{{khataId}}"] }
+          }
+        },
+        {
+          "name": "Filter Parties by LENA (You Will Get)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/parties/khata/{{khataId}}?filter=lena",
+              "host": ["{{baseUrl}}"],
+              "path": ["parties", "khata", "{{khataId}}"],
+              "query": [{ "key": "filter", "value": "lena" }]
+            }
+          }
+        },
+        {
+          "name": "Create Party",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Deepak Verma\",\n  \"phone_number\": \"9876543290\",\n  \"address\": \"Civil Lines Shop #5\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/parties/khata/{{khataId}}", "host": ["{{baseUrl}}"], "path": ["parties", "khata", "{{khataId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Transactions",
+      "item": [
+        {
+          "name": "Get Party Ledger Transactions",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/transactions/party/{{partyId}}", "host": ["{{baseUrl}}"], "path": ["transactions", "party", "{{partyId}}"] }
+          }
+        },
+        {
+          "name": "Add LENA (+ You Got ₹)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"party_id\": \"{{partyId}}\",\n  \"amount\": 1500,\n  \"txn_type\": \"LENA\",\n  \"details\": \"Cash received\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/transactions", "host": ["{{baseUrl}}"], "path": ["transactions"] }
+          }
+        },
+        {
+          "name": "Add DENA (− You Gave ₹)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"party_id\": \"{{partyId}}\",\n  \"amount\": 800,\n  \"txn_type\": \"DENA\",\n  \"details\": \"Items bought on credit\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/transactions", "host": ["{{baseUrl}}"], "path": ["transactions"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cross Entry & Vyapar",
+      "item": [
+        {
+          "name": "Perform Cross-Entry Transfer",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"khata_id\": \"{{khataId}}\",\n  \"from_party_id\": \"ea3a5272-f4ba-49eb-a274-309f0f7d92b1\",\n  \"to_party_id\": \"48f021d3-1105-40c5-b79c-b1ac00340309\",\n  \"amount\": 500,\n  \"details\": \"Settlement cross transfer\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/cross-entries", "host": ["{{baseUrl}}"], "path": ["cross-entries"] }
+          }
+        },
+        {
+          "name": "Monday Final (Freeze Transactions)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"party_id\": \"{{partyId}}\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/monday-final", "host": ["{{baseUrl}}"], "path": ["monday-final"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reports & Recycle Bin",
+      "item": [
+        {
+          "name": "Get Customer Statement (WhatsApp / Print)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/reports/party/{{partyId}}/statement", "host": ["{{baseUrl}}"], "path": ["reports", "party", "{{partyId}}", "statement"] }
+          }
+        },
+        {
+          "name": "View Recycle Bin",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/recycle-bin/{{khataId}}", "host": ["{{baseUrl}}"], "path": ["recycle-bin", "{{khataId}}"] }
+          }
+        }
+      ]
+    }
+  ]
+}
